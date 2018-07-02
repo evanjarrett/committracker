@@ -1,9 +1,7 @@
 import configparser
 import json
-from datetime import datetime
-
-import requests
-from dateutil.tz import tzlocal, tzutc
+from datetime import datetime, timezone
+from urllib import request
 
 config = configparser.ConfigParser()
 config.read("users.conf")
@@ -11,8 +9,8 @@ config.read("users.conf")
 users = json.loads(config.get("Default", "users"))
 
 for user in users:
-    r = requests.get('https://api.github.com/users/{user}/events'.format(user=user))
-    events = r.json()
+    response = request.urlopen('https://api.github.com/users/{user}/events'.format(user=user))
+    events = json.load(response)
     if "message" in events:
         print(events.get("message"))
         break
@@ -21,7 +19,7 @@ for user in users:
             continue
 
         created = datetime.strptime(event.get("created_at"), '%Y-%m-%dT%H:%M:%SZ')
-        created = created.replace(tzinfo=tzutc()).astimezone(tzlocal())
+        created = created.replace(tzinfo=timezone.utc).astimezone()
         if created.date() == datetime.today().date():
             payload = event.get("payload")
             repo_url = "https://github.com/" + event.get("repo").get("name")
