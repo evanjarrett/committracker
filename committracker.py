@@ -1,9 +1,8 @@
-import base64
 import configparser
 import json
 from datetime import datetime, timezone
-from urllib.error import HTTPError
 from urllib import request
+from urllib.error import HTTPError
 
 
 def get_user_commit_info(usr: str):
